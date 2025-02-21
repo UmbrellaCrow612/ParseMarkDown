@@ -8,7 +8,7 @@ function parseMarkDownToHTMLString(markDownString) {}
 /**
  * Parses plain text string markdown content and coverts it to array of tokens
  * @param {string} markDownString plain text string representation of markdown file
- * @returns {Array<MarkdownToken>} markdown tokens
+ * @returns {Array<BlockToken>} markdown tokens which will later be future tokenized for thee inline level tokens
  * @example
  * [
  *   { type: "heading", content: "Hello", level: 1 },
@@ -17,14 +17,11 @@ function parseMarkDownToHTMLString(markDownString) {}
  */
 function tokenizeMarkdown(markDownString) {
   /**
-   * @type {Array<MarkdownToken>} store we use to store the markdown tokens which we return
+   * @type {Array<BlockToken>} store we use to store the markdown tokens which we return
    */
   const tokens = [];
 
   markDownString.trim();
-
-  // This will first tokenize block level elements - these are elements that take up lines
-  // then inline will be done
 
   for (let i = 0; i < markDownString.length; i++) {
     var indexOfNewLine = markDownString.indexOf("\n", i);
@@ -38,6 +35,7 @@ function tokenizeMarkdown(markDownString) {
      */
     var line = markDownString.substring(i, indexOfNewLine).trim();
 
+    // Try to parse Headings
     if (headingCharacters.includes(line[0])) {
       let indexOFirstSpace = line.indexOf(" ");
       if (indexOFirstSpace === -1) {
@@ -139,6 +137,16 @@ function tokenizeMarkdown(markDownString) {
       continue;
     }
 
+    // See if its a block quote
+    if (isValidBlockQuote(line)) {
+      tokens.push({
+        content: line,
+        type: blockLevelMarkDownTokenTypes.blockquote,
+      });
+      i = indexOfNewLine;
+      continue;
+    }
+
     tokens.push({
       content: line,
       type: blockLevelMarkDownTokenTypes.paragraph,
@@ -150,6 +158,20 @@ function tokenizeMarkdown(markDownString) {
   console.log(tokens);
 
   return tokens;
+}
+
+/**
+ * @param {string} str string to check if it is a valid block quote
+ */
+function isValidBlockQuote(str) {
+  str.trim();
+  var ch = ">";
+
+  if (str[0] === ch) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 /**
@@ -199,7 +221,7 @@ const listCharacters = ["*", "-", "+"];
  */
 const blockLevelMarkDownTokenTypes = {
   heading: "heading",
-  blockquoteL: "blockquote",
+  blockquote: "blockquote",
   listItem: "list item",
   code: "code",
   horizontalRule: "horizontal rule",
@@ -220,10 +242,15 @@ const inlineLevelMarkDownTokenTypes = {
 };
 
 /**
- * @typedef {Object} MarkdownToken
+ * @typedef {Object} BlockToken
  * @property {string} type - The type of Markdown element (e.g., "heading", "paragraph", "bold").
- * @property {string | Array<MarkdownToken>} content - The text content of the token.
- * @property {number} [level] - Optional property for headings (e.g., `1` for `# Heading 1`).
+ * @property {string} content - The text content of the token.
+ * @property {number} [level] - Optional property for headings (e.g., `1` for `# Heading 1`) or other stuff relating to a token type.
+ * @property {Array<InlineToken>} inlineTokens - List of inline tokens for this block element
+ */
+
+/**
+ * @typedef {Object} InlineToken
  */
 
 function testMain() {
@@ -305,10 +332,8 @@ function testMain() {
     `;
 
   const markDownString2 = `
-     An ordered list:
-    1. First item   iwqndoiqdn oiwqwnd
-    2. Second item
-    3. Third item
+  >qwdwd
+  > qcca
   
   `;
 
