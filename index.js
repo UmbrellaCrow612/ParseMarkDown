@@ -27,15 +27,18 @@ function tokenizeMarkdown(markDownString) {
   // then inline will be done
 
   for (let i = 0; i < markDownString.length; i++) {
-    // Try to tokenize a heading
-    if (headingCharacters.includes(markDownString[i])) {
-      let indexOfNewLine = markDownString.indexOf("\n", i);
+    var indexOfNewLine = markDownString.indexOf("\n", i);
 
-      if (indexOfNewLine === -1) {
-        indexOfNewLine = markDownString.length;
-      }
+    if (indexOfNewLine === -1) {
+      indexOfNewLine = markDownString.length;
+    }
 
-      var line = markDownString.substring(i, indexOfNewLine).trim();
+    /**
+     * Block level line
+     */
+    var line = markDownString.substring(i, indexOfNewLine).trim();
+
+    if (headingCharacters.includes(line[0])) {
       let indexOFirstSpace = line.indexOf(" ");
       if (indexOFirstSpace === -1) {
         tokens.push({
@@ -66,15 +69,7 @@ function tokenizeMarkdown(markDownString) {
     }
 
     // Try to parse horizontal rules
-    if (horizontalRuleCharacters.includes(markDownString[i])) {
-      let indexOfNewLine = markDownString.indexOf("\n", i);
-
-      if (indexOfNewLine === -1) {
-        indexOfNewLine = markDownString.length;
-      }
-
-      var line = markDownString.substring(i, indexOfNewLine).trim();
-
+    if (horizontalRuleCharacters.includes(line[0])) {
       var indexOfFirstUnderScore = line.indexOf("_");
       var indexOfFirstStar = line.indexOf("*");
       var indexOfFirstDash = line.indexOf("-");
@@ -116,20 +111,71 @@ function tokenizeMarkdown(markDownString) {
           type: blockLevelMarkDownTokenTypes.horizontalRule,
         });
       } else {
-        tokens.push({
-          type: blockLevelMarkDownTokenTypes.paragraph,
-          content: line,
-        });
+        // List check
+        if (isValidList(line)) {
+          tokens.push({
+            content: line,
+            type: blockLevelMarkDownTokenTypes.listItem,
+          });
+        } else {
+          tokens.push({
+            type: blockLevelMarkDownTokenTypes.paragraph,
+            content: line,
+          });
+        }
       }
 
       i = indexOfNewLine;
       continue;
     }
+
+    // Try parse numbered lists
+    if (isValidList(line)) {
+      tokens.push({
+        content: line,
+        type: blockLevelMarkDownTokenTypes.listItem,
+      });
+      i = indexOfNewLine;
+      continue;
+    }
+
+    tokens.push({
+      content: line,
+      type: blockLevelMarkDownTokenTypes.paragraph,
+    });
+
+    i = indexOfNewLine;
   }
 
   console.log(tokens);
 
   return tokens;
+}
+
+/**
+ * Check if a string is valid markdown list
+ * @param {string} str string to check should be a line
+ * @returns {boolean} true or false if a string is a valid markdown list
+ */
+function isValidList(str) {
+  str.trim();
+  if (listCharacters.includes(str[0])) {
+    if (str[1] === " ") {
+      return true;
+    }
+  } else {
+    // could be a numbered list
+    if (isNumber(str[0])) {
+      if (str[1] === ".") {
+        return true;
+      }
+    }
+    return false;
+  }
+}
+
+function isNumber(str) {
+  return !isNaN(str) && str.trim() !== "";
 }
 
 /**
@@ -141,6 +187,11 @@ const headingCharacters = ["#", "##", "###", "####", "#####"];
  * Characters we use to compare characters with when iterate through to match cases
  */
 const horizontalRuleCharacters = ["-", "*", "_"];
+
+/**
+ * Characters we use to compare characters with when iterate through to match cases
+ */
+const listCharacters = ["*", "-", "+"];
 
 /**
  * Object that stores all the markdown token types we support / use to know what type the token is for block level elements
@@ -253,9 +304,15 @@ function testMain() {
          2. Subsubitem 2
     `;
 
-  const markDownString2 = "___\n";
+  const markDownString2 = `
+     An ordered list:
+    1. First item   iwqndoiqdn oiwqwnd
+    2. Second item
+    3. Third item
+  
+  `;
 
-  tokenizeMarkdown(markDownString2);
+  tokenizeMarkdown(markdownString);
 }
 
 testMain();
