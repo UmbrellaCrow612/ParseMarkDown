@@ -56,11 +56,18 @@ function tokenizeMarkdown(markDownString) {
 
     // Try parse lists
     if (isList(line)) {
-      console.log("TODO");
+      if (isValidList(line)) {
+        tokens.push({
+          content: line,
+          type: blockLevelMarkDownTokenTypes.listItem,
+        });
+        i = indexOfNewLine;
+        continue;
+      }
     }
 
     // See if its a block quote
-    if (isValidBlockQuote(line)) {
+    if (isBlockQuote(line)) {
       tokens.push({
         content: line,
         type: blockLevelMarkDownTokenTypes.blockquote,
@@ -86,14 +93,17 @@ function tokenizeMarkdown(markDownString) {
 /**
  * @param {string} str string to check if it is a valid block quote
  */
-function isValidBlockQuote(str) {
-  str.trim();
-  var ch = ">";
-
-  if (str[0] === ch) {
-    return true;
-  } else {
-    return false;
+function isBlockQuote(str) {
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] === " " || str[i] === "") {
+      continue;
+    } else {
+      if (str[i] === ">") {
+        return true;
+      } else {
+        return false;
+      }
+    }
   }
 }
 
@@ -101,7 +111,26 @@ function isValidBlockQuote(str) {
  *
  * @param {string} str
  */
-function isValidList(str) {}
+function isValidList(str) {
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] === " " || str[i] === "") {
+      continue;
+    } else {
+      if (str[i] === "-" || str[i] === "*" || str[i] === "+") {
+        if (str[i + 1] === " ") {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        if (isNumber(str[i]) && str[i + 1] === "." && str[i + 2] === " ") {
+          return true;
+        }
+        return false;
+      }
+    }
+  }
+}
 
 /**
  *
@@ -352,9 +381,12 @@ function testMain() {
   ****
   ____
   ---
-  -
-  *
-  +
+  - Hello world
+  * List
+  + Yo
+  1. hello
+  2. dedninde
+  3. wiennwd
   `;
 
   tokenizeMarkdown(markdownString);
