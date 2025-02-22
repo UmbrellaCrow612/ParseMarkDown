@@ -109,8 +109,91 @@ function tokenizeMarkdown(markDownString) {
     i = indexOfNewLine;
   }
 
-  // Another loop over tokens which we parse its content for sub inline tokens
-  console.log(tokens);
+  tokens.forEach((token) => {
+    token.inlineTokens = tokenizeInlineMarkdown(token);
+  });
+
+  tokens.forEach((token) => {
+    console.log("Block token " + JSON.stringify(token));
+    token.inlineTokens.forEach((token) => {
+      console.log("Inline token for above parent " + JSON.stringify(token));
+    });
+  });
+
+  return tokens;
+}
+
+/**
+ *
+ * @param {BlockToken} blockToken the line string
+ * @returns {Array<InlineToken>} inline tokens for the block token
+ */
+function tokenizeInlineMarkdown(blockToken) {
+  let tokens = [];
+  var line = blockToken.content;
+  for (let i = 0; i < line.length; i++) {
+    if (line[i] === "*") {
+      let startIndex = i;
+      let count = 1;
+
+      // Count consecutive '*' characters
+      while (i + 1 < line.length && line[i + 1] === "*") {
+        count++;
+        i++;
+      }
+
+      let contentStart = i + 1;
+      let numberBeforeNextStar = 0;
+      let endIndex = -1;
+
+      // Find matching closing '*' or '**'
+      for (let j = contentStart; j < line.length; j++) {
+        if (line[j] !== "*") {
+          numberBeforeNextStar++;
+        } else {
+          if (count === 1 && numberBeforeNextStar >= 1) {
+            // Italic detected (*text*)
+            endIndex = j;
+            tokens.push({
+              type: "italic-text",
+              startIndex: startIndex,
+              endIndex: endIndex + 1,
+            });
+            break;
+          } else if (count === 2 && numberBeforeNextStar >= 1) {
+            // Bold detected (**text**)
+            endIndex = j;
+            tokens.push({
+              type: "bold-text",
+              startIndex: startIndex,
+              endIndex: endIndex + 1,
+            });
+            break;
+          }
+        }
+      }
+
+      if (endIndex !== -1) {
+        i = endIndex;
+      }
+    }
+
+    if (line[i] === "~") {
+      // check for strike through and move pointer downF
+    }
+
+    if (line[i] === "`") {
+      // check for inline code token
+    }
+
+    if (line[i] === "[") {
+      /// add link token
+    }
+
+    if (line[i] === "!") {
+      // add img token
+    }
+  }
 
   return tokens;
 }
@@ -391,89 +474,83 @@ const inlineLevelMarkDownTokenTypes = {
 
 function testMain() {
   const markdownString = `
-    # Main Heading
+# Main Heading
     
-    ## Secondary Heading
+## Secondary Heading
     
-    ### Tertiary Heading
+### Tertiary Heading
     
-    This is a paragraph of text. It contains **bold** text and *italic* text. You can also combine them like this: ***bold and italic***.
+This is a paragraph of text. It contains **bold** text and *italic* text. You can also combine them like this: ***bold and italic***.
     
-    Here’s a list:
-    - Item 1
-    - Item 2
-    - Item 3
-    
-    An ordered list:
-    1. First item
-    2. Second item
-    3. Third item
-    
-    A blockquote:
-    > This is a blockquote.
-    
-    A code block:
-    
-    \`\`\`
-    const x = 10;
-    console.log(x);
-    \`\`\`
-    
-    Inline code: \`let a = 5;\`
-    
-    A link to [Google](https://www.google.com).
-    
-    Images are like links but with an exclamation mark before: 
-    ![Image Alt Text](https://via.placeholder.com/150)
-    
-    Horizontal rule:
-    ---
-    
-    **Tables:**
-    
-    | Header 1 | Header 2 |
-    |----------|----------|
-    | Row 1 Col 1 | Row 1 Col 2 |
-    | Row 2 Col 1 | Row 2 Col 2 |
-    
-    A footnote reference[^1].
-    
-    [^1]: This is the footnote content.
-    
-    ### Nested Lists
-    
-    1. First item
-       - Subitem 1
-       - Subitem 2
-    2. Second item
-       - Subitem 1
-    
-    Strikethrough text: ~~This text is crossed out~~.
-    
-    A list with task items:
-    - [x] Task 1
-    - [ ] Task 2
-    
-    ---
-    
-    ## Another Section
-    
-    Here’s some more text to make it longer. You can have **bold** and *italic* texts, like so.
-    
-    ### Another Nested List:
-    1. Main item
-       - Subitem 1
-         1. Subsubitem 1
-         2. Subsubitem 2
-    `;
+Here’s a list:
+- Item 1
+- Item 2
+- Item 3
 
-  const markDownString2 = `
-\`\`\`js
-xwxw
+An ordered list:
+1. First item
+2. Second item
+3. Third item
+
+A blockquote:
+> This is a blockquote.
+
+A code block:
+
+\`\`\`
+const x = 10;
+console.log(x);
 \`\`\`
 
-~~~   
-          ocowmc`;
+Inline code: \`let a = 5;\`
+
+A link to [Google](https://www.google.com).
+
+Images are like links but with an exclamation mark before: 
+![Image Alt Text](https://via.placeholder.com/150)
+
+Horizontal rule:
+---
+
+**Tables:**
+
+| Header 1 | Header 2 |
+|----------|----------|
+| Row 1 Col 1 | Row 1 Col 2 |
+| Row 2 Col 1 | Row 2 Col 2 |
+
+A footnote reference[^1].
+
+[^1]: This is the footnote content.
+
+### Nested Lists
+
+1. First item
+    - Subitem 1
+    - Subitem 2
+2. Second item
+    - Subitem 1
+
+Strikethrough text: ~~This text is crossed out~~.
+
+A list with task items:
+- [x] Task 1
+- [ ] Task 2
+
+---
+
+## Another Section
+
+Here’s some more text to make it longer. You can have **bold** and *italic* texts, like so.
+
+### Another Nested List:
+1. Main item
+    - Subitem 1
+      1. Subsubitem 1
+      2. Subsubitem 2
+    `;
+
+  const markDownString2 = `*dwojd* **bold**`;
 
   tokenizeMarkdown(markDownString2);
 }
