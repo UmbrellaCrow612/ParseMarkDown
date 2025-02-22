@@ -76,6 +76,31 @@ function tokenizeMarkdown(markDownString) {
       continue;
     }
 
+    if (isCodeBlock(line)) {
+      var result = isValidCodeBlock(line);
+
+      if (typeof result === "object") {
+        if (result.codeType === blockLevelMarkDownTokenTypes.tabs) {
+          tokens.push({
+            content: line,
+            type: result.codeType,
+          });
+          i = indexOfNewLine;
+          continue;
+        }
+        tokens.push({
+          content: line,
+          type: result.codeType,
+          language:
+            result.language.length > 0 && result.language[0] !== " "
+              ? result.language
+              : "Not specified",
+        });
+        i = indexOfNewLine;
+        continue;
+      }
+    }
+
     tokens.push({
       content: line,
       type: blockLevelMarkDownTokenTypes.paragraph,
@@ -88,6 +113,69 @@ function tokenizeMarkdown(markDownString) {
   console.log(tokens);
 
   return tokens;
+}
+
+/**
+ *
+ * @param {string} str
+ */
+function isValidCodeBlock(str) {
+  let spaceCount = 0;
+
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] === " ") {
+      spaceCount++;
+      if (spaceCount >= 4) {
+        return { codeType: blockLevelMarkDownTokenTypes.tabs };
+      }
+      continue;
+    }
+
+    if (str[i] === "`" || str[i] === "~") {
+      let char = str[i];
+      let count = 0;
+
+      // Count consecutive backticks or tildes
+      while (i < str.length && str[i] === char) {
+        count++;
+        i++;
+      }
+
+      // Valid code block requires exactly 3 backticks/tildes
+      if (count === 3) {
+        let language = str.substring(i).trim();
+        return { codeType: blockLevelMarkDownTokenTypes.code, language };
+      }
+
+      return false;
+    }
+
+    break; // Stop checking once a non-space/non-code character is found
+  }
+
+  return false;
+}
+
+/**
+ *
+ * @param {string} str
+ */
+function isCodeBlock(str) {
+  var amountOfInd = 0;
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] === " " || str[i] === "") {
+      amountOfInd++;
+      if (amountOfInd >= 4) {
+        return true;
+      }
+    } else {
+      if (str.split("`").length - 1 >= 3 || str.split("~").length - 1 >= 3) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
 }
 
 /**
@@ -270,6 +358,7 @@ const blockLevelMarkDownTokenTypes = {
   blockquote: "blockquote",
   listItem: "list item",
   code: "code",
+  tabs: "tabs",
   horizontalRule: "horizontal rule",
   paragraph: "paragraph",
 };
@@ -293,6 +382,7 @@ const inlineLevelMarkDownTokenTypes = {
  * @property {string} content - The text content of the token.
  * @property {number} [level] - Optional property for headings (e.g., `1` for `# Heading 1`) or other stuff relating to a token type.
  * @property {Array<InlineToken>} inlineTokens - List of inline tokens for this block element
+ * @property {string} language a programming language name
  */
 
 /**
@@ -378,18 +468,14 @@ function testMain() {
     `;
 
   const markDownString2 = `
-  ****
-  ____
-  ---
-  - Hello world
-  * List
-  + Yo
-  1. hello
-  2. dedninde
-  3. wiennwd
-  `;
+\`\`\`js
+xwxw
+\`\`\`
 
-  tokenizeMarkdown(markdownString);
+~~~   
+          ocowmc`;
+
+  tokenizeMarkdown(markDownString2);
 }
 
 testMain();
