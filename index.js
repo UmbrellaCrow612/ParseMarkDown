@@ -1,11 +1,4 @@
 /**
- * Parses plain text string markdown content to plain text string HTML
- * @param {string} markDownString plain text string representation of markdown file
- * @returns {string} html string of the markdown
- */
-function parseMarkDownToHTMLString(markDownString) {}
-
-/**
  * Parses plain text string markdown content and coverts it to array of tokens
  * @param {string} markDownString plain text string representation of markdown file
  * @returns {Array<BlockToken>} markdown tokens which will later be future tokenized for thee inline level tokens
@@ -21,7 +14,7 @@ function tokenizeMarkdown(markDownString) {
    */
   const tokens = [];
 
-  markDownString.trim();
+  markDownString;
 
   for (let i = 0; i < markDownString.length; i++) {
     var indexOfNewLine = markDownString.indexOf("\n", i);
@@ -33,108 +26,37 @@ function tokenizeMarkdown(markDownString) {
     /**
      * Block level line
      */
-    var line = markDownString.substring(i, indexOfNewLine).trim();
+    var line = markDownString.substring(i, indexOfNewLine);
 
     // Try to parse Headings
-    if (headingCharacters.includes(line[0])) {
-      let indexOFirstSpace = line.indexOf(" ");
-      if (indexOFirstSpace === -1) {
+    if (isHeadingBlock(line)) {
+      if (isValidHeading(line)) {
         tokens.push({
           content: line,
-          type: blockLevelMarkDownTokenTypes.paragraph,
+          type: blockLevelMarkDownTokenTypes.heading,
+          level: line.split("#").length - 1,
         });
+
         i = indexOfNewLine;
         continue;
       }
-
-      if (!headingCharacters.includes(line[indexOFirstSpace - 1])) {
-        tokens.push({
-          content: line,
-          type: blockLevelMarkDownTokenTypes.paragraph,
-        });
-        i = indexOfNewLine;
-        continue;
-      }
-
-      tokens.push({
-        content: line,
-        type: blockLevelMarkDownTokenTypes.heading,
-        level: line.split(headingCharacters[0]).length - 1,
-      });
-
-      i = indexOfNewLine;
-      continue;
     }
 
     // Try to parse horizontal rules
-    if (horizontalRuleCharacters.includes(line[0])) {
-      var indexOfFirstUnderScore = line.indexOf("_");
-      var indexOfFirstStar = line.indexOf("*");
-      var indexOfFirstDash = line.indexOf("-");
-
-      // If none of the special characters _ * - are found, treat it as a paragraph
-      if (
-        indexOfFirstDash === -1 &&
-        indexOfFirstStar === -1 &&
-        indexOfFirstUnderScore === -1
-      ) {
-        tokens.push({
-          type: blockLevelMarkDownTokenTypes.paragraph,
-          content: line,
-        });
-        i = indexOfNewLine;
-        continue;
-      }
-
-      const isValidHorizontalRule = (char, line) => {
-        let count = 0;
-        for (let j = 0; j < line.length; j++) {
-          if (line[j] === char) {
-            count++;
-          } else if (line[j] !== " ") {
-            return false; // Found a character that's not the one we're looking for or a space
-          }
-        }
-        return count >= 3;
-      };
-
-      // Check if the line consists of only one character type and has at least three of them
-      if (
-        isValidHorizontalRule("-", line) ||
-        isValidHorizontalRule("*", line) ||
-        isValidHorizontalRule("_", line)
-      ) {
+    if (isHorizontalRule(line)) {
+      if (isValidHorizontalRule(line)) {
         tokens.push({
           content: line,
           type: blockLevelMarkDownTokenTypes.horizontalRule,
         });
-      } else {
-        // List check
-        if (isValidList(line)) {
-          tokens.push({
-            content: line,
-            type: blockLevelMarkDownTokenTypes.listItem,
-          });
-        } else {
-          tokens.push({
-            type: blockLevelMarkDownTokenTypes.paragraph,
-            content: line,
-          });
-        }
+        i = indexOfNewLine;
+        continue;
       }
-
-      i = indexOfNewLine;
-      continue;
     }
 
-    // Try parse numbered lists
-    if (isValidList(line)) {
-      tokens.push({
-        content: line,
-        type: blockLevelMarkDownTokenTypes.listItem,
-      });
-      i = indexOfNewLine;
-      continue;
+    // Try parse lists
+    if (isList(line)) {
+      console.log("TODO");
     }
 
     // See if its a block quote
@@ -155,6 +77,7 @@ function tokenizeMarkdown(markDownString) {
     i = indexOfNewLine;
   }
 
+  // Another loop over tokens which we parse its content for sub inline tokens
   console.log(tokens);
 
   return tokens;
@@ -175,45 +98,139 @@ function isValidBlockQuote(str) {
 }
 
 /**
- * Check if a string is valid markdown list
- * @param {string} str string to check should be a line
- * @returns {boolean} true or false if a string is a valid markdown list
+ *
+ * @param {string} str
  */
-function isValidList(str) {
-  str.trim();
-  if (listCharacters.includes(str[0])) {
-    if (str[1] === " ") {
-      return true;
+function isValidList(str) {}
+
+/**
+ *
+ * @param {string} str
+ */
+function isList(str) {
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] === "" || str[i] === " ") {
+      continue;
+    } else {
+      if (
+        str[i] === "-" ||
+        str[i] === "*" ||
+        str[i] === "+" ||
+        isNumber(str[i])
+      ) {
+        return true;
+      } else {
+        return false;
+      }
     }
-  } else {
-    // could be a numbered list
-    if (isNumber(str[0])) {
-      if (str[1] === ".") {
+  }
+}
+
+function isValidHeading(str) {
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] === "" || str[i] === " ") {
+      continue;
+    } else {
+      if (str[i] === "#") {
+        var amountOfHashes = 0;
+        for (let j = 0; j < str.length; j++) {
+          if (str[i + j] === "#") {
+            amountOfHashes++;
+          } else {
+            break;
+          }
+        }
+
+        if (amountOfHashes == 0) return false;
+
+        if (str[i + amountOfHashes] === " ") {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    }
+  }
+}
+
+/**
+ *
+ * @param {string} str
+ */
+function isHeadingBlock(str) {
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] === "" || str[i] === " ") {
+      continue;
+    } else {
+      if (str[i] === "#") {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+}
+
+/**
+ *
+ * @param {string} str
+ */
+function isValidHorizontalRule(str) {
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] === "" || str[i] === " ") {
+      continue;
+    } else {
+      if (str[i] === "-" || str[i] === "*" || str[i] === "_") {
+        var amountOfConsSpecialChars = 0;
+
+        for (let j = i; j < str.length; j++) {
+          if (str[j] === "-" || str[j] === "*" || str[j] === "_") {
+            amountOfConsSpecialChars++;
+            continue;
+          } else {
+            return false;
+          }
+        }
+
+        if (amountOfConsSpecialChars < 3) return false;
+
         return true;
       }
     }
-    return false;
+  }
+}
+
+/**
+ *
+ * @param {string} str
+ */
+function isHorizontalRule(str) {
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] === "" || str[i] === " ") {
+      continue;
+    } else {
+      if (str[i] === "-" || str[i] === "_" || str[i] === "*") {
+        if (
+          str.split("-").length - 1 >= 3 ||
+          str.split("_").length - 1 >= 3 ||
+          str.split("*").length - 1 >= 3
+        ) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    }
   }
 }
 
 function isNumber(str) {
   return !isNaN(str) && str.trim() !== "";
 }
-
-/**
- * Characters we use to compare characters with when iterate through to match cases
- */
-const headingCharacters = ["#", "##", "###", "####", "#####"];
-
-/**
- * Characters we use to compare characters with when iterate through to match cases
- */
-const horizontalRuleCharacters = ["-", "*", "_"];
-
-/**
- * Characters we use to compare characters with when iterate through to match cases
- */
-const listCharacters = ["*", "-", "+"];
 
 /**
  * Object that stores all the markdown token types we support / use to know what type the token is for block level elements
@@ -332,9 +349,12 @@ function testMain() {
     `;
 
   const markDownString2 = `
-  >qwdwd
-  > qcca
-  
+  ****
+  ____
+  ---
+  -
+  *
+  +
   `;
 
   tokenizeMarkdown(markdownString);
