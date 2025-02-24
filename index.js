@@ -294,10 +294,17 @@ function isValidList(str) {
           return false;
         }
       } else {
-        if (isNumber(str[i]) && str[i + 1] === "." && str[i + 2] === " ") {
-          return true;
+        while (i < str.length) {
+          if (isNumber(str[i])) {
+            i++;
+          } else {
+            if (str[i] === "." && str[i + 1] === " ") {
+              return true;
+            } else {
+              return false;
+            }
+          }
         }
-        return false;
       }
     }
   }
@@ -332,21 +339,17 @@ function isValidHeading(str) {
       continue;
     } else {
       if (str[i] === "#") {
-        var amountOfHashes = 0;
-        for (let j = 0; j < str.length; j++) {
-          if (str[i + j] === "#") {
-            amountOfHashes++;
+        while (i < str.length) {
+          if (str[i] === "#") {
+            i++;
+            continue;
           } else {
-            break;
+            if (str[i] === " " && str[i - 1] === "#") {
+              return true;
+            } else {
+              return false;
+            }
           }
-        }
-
-        if (amountOfHashes == 0) return false;
-
-        if (str[i + amountOfHashes] === " ") {
-          return true;
-        } else {
-          return false;
         }
       } else {
         return false;
@@ -550,7 +553,7 @@ Here’s some more text to make it longer. You can have **bold** and *italic* te
       2. Subsubitem 2
     `;
 
-  const markDownString2 = `*dwojd* **bold**`;
+  const markDownString2 = `___`;
 
   tokenizeMarkdown(markDownString2);
 }
