@@ -1,563 +1,97 @@
 /**
- * Parses plain text string markdown content and coverts it to array of tokens
- * @param {string} markDownString plain text string representation of markdown file
- * @returns {Array<BlockToken>} markdown tokens which will later be future tokenized for thee inline level tokens
- * @example
- * [
- *   { type: "heading", content: "Hello", level: 1 },
- *   { type: "paragraph", content: "This is **bold** text." }
- * ]
+ *
+ * @param {string} position
+ * @param {string} markdown
  */
-function tokenizeMarkdown(markDownString) {
-  /**
-   * @type {Array<BlockToken>} store we use to store the markdown tokens which we return
-   */
+function moveAfterHeading(position, markdown) {
+  var newLine = markdown.indexOf("\n", position);
+  if (newLine === -1) {
+    newLine = markdown.length;
+  }
+  return newLine + 1;
+}
+
+/**
+ *
+ * @param {string} position
+ * @param {string} markdown
+ */
+function extractHeadingContent(position, markdown) {
+  let newLine = markdown.indexOf("\n", position);
+  if (newLine === -1) {
+    newLine = markdown.length;
+  }
+  return markdown.substring(position, newLine);
+}
+
+/**
+ *
+ * @param {string} position
+ * @param {string} markdown
+ */
+function countHeadingLevel(position, markdown) {
+  let count = 0;
+  let p = position;
+  while (p < markdown.length) {
+    if (markdown[p] === "#") {
+      count++;
+      p++;
+    } else {
+      return count;
+    }
+  }
+}
+
+/**
+ *
+ * @param {string} position
+ * @param {string} markdown
+ */
+function isHeading(position, markdown) {
+  let p = position;
+
+  if (markdown[p] === "#") {
+    while (p < markdown.length) {
+      if (markdown[p] === "#") {
+        p++;
+      } else {
+        if (markdown[p] === " " && markdown[p - 1] === "#") {
+          return true;
+        }
+        return false;
+      }
+    }
+  }
+}
+
+/**
+ *
+ * @param {string} markdown
+ */
+function tokenizeMarkDown(markdown) {
   const tokens = [];
+  let position = 0;
 
-  markDownString;
-
-  for (let i = 0; i < markDownString.length; i++) {
-    var indexOfNewLine = markDownString.indexOf("\n", i);
-
-    if (indexOfNewLine === -1) {
-      indexOfNewLine = markDownString.length;
-    }
-
-    /**
-     * Block level line
-     */
-    var line = markDownString.substring(i, indexOfNewLine);
-
-    // Try to parse Headings
-    if (isHeadingBlock(line)) {
-      if (isValidHeading(line)) {
-        tokens.push({
-          content: line,
-          type: blockLevelMarkDownTokenTypes.heading,
-          level: line.split("#").length - 1,
-        });
-
-        i = indexOfNewLine;
-        continue;
-      }
-    }
-
-    // Try to parse horizontal rules
-    if (isHorizontalRule(line)) {
-      if (isValidHorizontalRule(line)) {
-        tokens.push({
-          content: line,
-          type: blockLevelMarkDownTokenTypes.horizontalRule,
-        });
-        i = indexOfNewLine;
-        continue;
-      }
-    }
-
-    // Try parse lists
-    if (isList(line)) {
-      if (isValidList(line)) {
-        tokens.push({
-          content: line,
-          type: blockLevelMarkDownTokenTypes.listItem,
-        });
-        i = indexOfNewLine;
-        continue;
-      }
-    }
-
-    // See if its a block quote
-    if (isBlockQuote(line)) {
-      tokens.push({
-        content: line,
-        type: blockLevelMarkDownTokenTypes.blockquote,
-      });
-      i = indexOfNewLine;
-      continue;
-    }
-
-    if (isCodeBlock(line)) {
-      var result = isValidCodeBlock(line);
-
-      if (typeof result === "object") {
-        if (result.codeType === blockLevelMarkDownTokenTypes.tabs) {
-          tokens.push({
-            content: line,
-            type: result.codeType,
-          });
-          i = indexOfNewLine;
-          continue;
-        }
-        tokens.push({
-          content: line,
-          type: result.codeType,
-          language:
-            result.language.length > 0 && result.language[0] !== " "
-              ? result.language
-              : "Not specified",
-        });
-        i = indexOfNewLine;
-        continue;
-      }
-    }
-
-    tokens.push({
-      content: line,
-      type: blockLevelMarkDownTokenTypes.paragraph,
-    });
-
-    i = indexOfNewLine;
-  }
-
-  tokens.forEach((token) => {
-    token.inlineTokens = tokenizeInlineMarkdown(token);
-  });
-
-  tokens.forEach((token) => {
-    console.log("Block token " + JSON.stringify(token));
-    token.inlineTokens.forEach((token) => {
-      console.log("Inline token for above parent " + JSON.stringify(token));
-    });
-  });
-
-  return tokens;
-}
-
-/**
- *
- * @param {BlockToken} blockToken the line string
- * @returns {Array<InlineToken>} inline tokens for the block token
- */
-function tokenizeInlineMarkdown(blockToken) {
-  let tokens = [];
-  var line = blockToken.content;
-  for (let i = 0; i < line.length; i++) {
-    if (line[i] === "*") {
-      let startIndex = i;
-      let count = 1;
-
-      // Count consecutive '*' characters
-      while (i + 1 < line.length && line[i + 1] === "*") {
-        count++;
-        i++;
-      }
-
-      let contentStart = i + 1;
-      let numberBeforeNextStar = 0;
-      let endIndex = -1;
-
-      // Find matching closing '*' or '**'
-      for (let j = contentStart; j < line.length; j++) {
-        if (line[j] !== "*") {
-          numberBeforeNextStar++;
-        } else {
-          if (count === 1 && numberBeforeNextStar >= 1) {
-            // Italic detected (*text*)
-            endIndex = j;
-            tokens.push({
-              type: "italic-text",
-              startIndex: startIndex,
-              endIndex: endIndex + 1,
-            });
-            break;
-          } else if (count === 2 && numberBeforeNextStar >= 1) {
-            // Bold detected (**text**)
-            endIndex = j;
-            tokens.push({
-              type: "bold-text",
-              startIndex: startIndex,
-              endIndex: endIndex + 1,
-            });
-            break;
-          }
-        }
-      }
-
-      if (endIndex !== -1) {
-        i = endIndex;
-      }
-    }
-
-    if (line[i] === "~") {
-      // check for strike through and move pointer downF
-    }
-
-    if (line[i] === "`") {
-      // check for inline code token
-    }
-
-    if (line[i] === "[") {
-      /// add link token
-    }
-
-    if (line[i] === "!") {
-      // add img token
+  while (position < markdown.length) {
+    if (isHeading(position, markdown)) {
+      let level = countHeadingLevel(position, markdown);
+      let content = extractHeadingContent(position, markdown);
+      position = moveAfterHeading(position, markdown);
+      tokens.push({ level, content, type: "heading" });
+    } else {
+      position++;
     }
   }
 
   return tokens;
 }
 
-/**
- *
- * @param {string} str
- */
-function isValidCodeBlock(str) {
-  let spaceCount = 0;
-
-  for (let i = 0; i < str.length; i++) {
-    if (str[i] === " ") {
-      spaceCount++;
-      if (spaceCount >= 4) {
-        return { codeType: blockLevelMarkDownTokenTypes.tabs };
-      }
-      continue;
-    }
-
-    if (str[i] === "`" || str[i] === "~") {
-      let char = str[i];
-      let count = 0;
-
-      // Count consecutive backticks or tildes
-      while (i < str.length && str[i] === char) {
-        count++;
-        i++;
-      }
-
-      // Valid code block requires exactly 3 backticks/tildes
-      if (count === 3) {
-        let language = str.substring(i).trim();
-        return { codeType: blockLevelMarkDownTokenTypes.code, language };
-      }
-
-      return false;
-    }
-
-    break; // Stop checking once a non-space/non-code character is found
-  }
-
-  return false;
+function main() {
+  var markdown = `### Hello
+###wrong
+##### Correct`;
+  var t = tokenizeMarkDown(markdown);
+  console.log(t);
 }
 
-/**
- *
- * @param {string} str
- */
-function isCodeBlock(str) {
-  var amountOfInd = 0;
-  for (let i = 0; i < str.length; i++) {
-    if (str[i] === " " || str[i] === "") {
-      amountOfInd++;
-      if (amountOfInd >= 4) {
-        return true;
-      }
-    } else {
-      if (str.split("`").length - 1 >= 3 || str.split("~").length - 1 >= 3) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-  }
-}
-
-/**
- * @param {string} str string to check if it is a valid block quote
- */
-function isBlockQuote(str) {
-  for (let i = 0; i < str.length; i++) {
-    if (str[i] === " " || str[i] === "") {
-      continue;
-    } else {
-      if (str[i] === ">") {
-        return true;
-      } else {
-        return false;
-      }
-    }
-  }
-}
-
-/**
- *
- * @param {string} str
- */
-function isValidList(str) {
-  for (let i = 0; i < str.length; i++) {
-    if (str[i] === " " || str[i] === "") {
-      continue;
-    } else {
-      if (str[i] === "-" || str[i] === "*" || str[i] === "+") {
-        if (str[i + 1] === " ") {
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        while (i < str.length) {
-          if (isNumber(str[i])) {
-            i++;
-          } else {
-            if (str[i] === "." && str[i + 1] === " ") {
-              return true;
-            } else {
-              return false;
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-/**
- *
- * @param {string} str
- */
-function isList(str) {
-  for (let i = 0; i < str.length; i++) {
-    if (str[i] === "" || str[i] === " ") {
-      continue;
-    } else {
-      if (
-        str[i] === "-" ||
-        str[i] === "*" ||
-        str[i] === "+" ||
-        isNumber(str[i])
-      ) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-  }
-}
-
-function isValidHeading(str) {
-  for (let i = 0; i < str.length; i++) {
-    if (str[i] === "" || str[i] === " ") {
-      continue;
-    } else {
-      if (str[i] === "#") {
-        while (i < str.length) {
-          if (str[i] === "#") {
-            i++;
-            continue;
-          } else {
-            if (str[i] === " " && str[i - 1] === "#") {
-              return true;
-            } else {
-              return false;
-            }
-          }
-        }
-      } else {
-        return false;
-      }
-    }
-  }
-}
-
-/**
- *
- * @param {string} str
- */
-function isHeadingBlock(str) {
-  for (let i = 0; i < str.length; i++) {
-    if (str[i] === "" || str[i] === " ") {
-      continue;
-    } else {
-      if (str[i] === "#") {
-        return true;
-      } else {
-        return false;
-      }
-    }
-  }
-}
-
-/**
- *
- * @param {string} str
- */
-function isValidHorizontalRule(str) {
-  for (let i = 0; i < str.length; i++) {
-    if (str[i] === "" || str[i] === " ") {
-      continue;
-    } else {
-      if (str[i] === "-" || str[i] === "*" || str[i] === "_") {
-        var amountOfConsSpecialChars = 0;
-
-        for (let j = i; j < str.length; j++) {
-          if (str[j] === "-" || str[j] === "*" || str[j] === "_") {
-            amountOfConsSpecialChars++;
-            continue;
-          } else {
-            return false;
-          }
-        }
-
-        if (amountOfConsSpecialChars < 3) return false;
-
-        return true;
-      }
-    }
-  }
-}
-
-/**
- *
- * @param {string} str
- */
-function isHorizontalRule(str) {
-  for (let i = 0; i < str.length; i++) {
-    if (str[i] === "" || str[i] === " ") {
-      continue;
-    } else {
-      if (str[i] === "-" || str[i] === "_" || str[i] === "*") {
-        if (
-          str.split("-").length - 1 >= 3 ||
-          str.split("_").length - 1 >= 3 ||
-          str.split("*").length - 1 >= 3
-        ) {
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        return false;
-      }
-    }
-  }
-}
-
-function isNumber(str) {
-  return !isNaN(str) && str.trim() !== "";
-}
-
-/**
- * Object that stores all the markdown token types we support / use to know what type the token is for block level elements
- * block level elements are whole line elements
- */
-const blockLevelMarkDownTokenTypes = {
-  heading: "heading",
-  blockquote: "blockquote",
-  listItem: "list item",
-  code: "code",
-  tabs: "tabs",
-  horizontalRule: "horizontal rule",
-  paragraph: "paragraph",
-};
-
-/**
- * Object that stores all the markdown token types we support / use to know what type the token is for inline level elements
- * inline level elements are elements within a block level element and can be multiple within the same block
- */
-const inlineLevelMarkDownTokenTypes = {
-  bold: "bold",
-  italic: "italic",
-  strikethrough: "strikethrough",
-  inlineCode: "inline code",
-  link: "link",
-  image: "image",
-};
-
-/**
- * @typedef {Object} BlockToken
- * @property {string} type - The type of Markdown element (e.g., "heading", "paragraph", "bold").
- * @property {string} content - The text content of the token.
- * @property {number} [level] - Optional property for headings (e.g., `1` for `# Heading 1`) or other stuff relating to a token type.
- * @property {Array<InlineToken>} inlineTokens - List of inline tokens for this block element
- * @property {string} language a programming language name
- */
-
-/**
- * @typedef {Object} InlineToken
- */
-
-function testMain() {
-  const markdownString = `
-# Main Heading
-    
-## Secondary Heading
-    
-### Tertiary Heading
-    
-This is a paragraph of text. It contains **bold** text and *italic* text. You can also combine them like this: ***bold and italic***.
-    
-Here’s a list:
-- Item 1
-- Item 2
-- Item 3
-
-An ordered list:
-1. First item
-2. Second item
-3. Third item
-
-A blockquote:
-> This is a blockquote.
-
-A code block:
-
-\`\`\`
-const x = 10;
-console.log(x);
-\`\`\`
-
-Inline code: \`let a = 5;\`
-
-A link to [Google](https://www.google.com).
-
-Images are like links but with an exclamation mark before: 
-![Image Alt Text](https://via.placeholder.com/150)
-
-Horizontal rule:
----
-
-**Tables:**
-
-| Header 1 | Header 2 |
-|----------|----------|
-| Row 1 Col 1 | Row 1 Col 2 |
-| Row 2 Col 1 | Row 2 Col 2 |
-
-A footnote reference[^1].
-
-[^1]: This is the footnote content.
-
-### Nested Lists
-
-1. First item
-    - Subitem 1
-    - Subitem 2
-2. Second item
-    - Subitem 1
-
-Strikethrough text: ~~This text is crossed out~~.
-
-A list with task items:
-- [x] Task 1
-- [ ] Task 2
-
----
-
-## Another Section
-
-Here’s some more text to make it longer. You can have **bold** and *italic* texts, like so.
-
-### Another Nested List:
-1. Main item
-    - Subitem 1
-      1. Subsubitem 1
-      2. Subsubitem 2
-    `;
-
-  const markDownString2 = `___`;
-
-  tokenizeMarkdown(markDownString2);
-}
-
-testMain();
-
-// Use node index.js for testing
+main();
