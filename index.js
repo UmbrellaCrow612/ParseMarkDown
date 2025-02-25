@@ -1,4 +1,16 @@
 /**
+ * Returns the new position after the horizontal rule
+ * @param {string} position
+ * @param {string} markdown
+ */
+function moveAfterHorizontalRule(position, markdown) {
+  let newLine = markdown.indexOf("\n", position);
+  if (newLine === -1) newLine = markdown.length;
+
+  return Math.min(newLine + 1, newLine);
+}
+
+/**
  * Checks if the given position in the markdown is "clean"
  * (no non-whitespace characters before it up to a newline or the start).
  *
@@ -198,7 +210,8 @@ function tokenizeMarkDown(markdown) {
       position = moveAfterHeading(position, markdown);
       tokens.push({ level, content, type: "heading" });
     } else if (isHorizontalRule(position, markdown)) {
-      console.log("rul rule ");
+      position = moveAfterHorizontalRule(position, markdown);
+      tokens.push({ type: "horizontal rule" });
     }
     position++;
   }
@@ -207,7 +220,12 @@ function tokenizeMarkDown(markdown) {
 }
 
 function main() {
-  var markdown = `  *****`;
+  var markdown = `  *****
+  -------
+  _____
+  ___diwnd
+  ### Heading one
+  ##diin`;
   var t = tokenizeMarkDown(markdown);
   console.log(t);
 }
