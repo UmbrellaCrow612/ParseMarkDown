@@ -1,4 +1,56 @@
 /**
+ * Checks if the given position in the markdown is "clean"
+ * (no non-whitespace characters before it up to a newline or the start).
+ *
+ * @param {number} position - The index in the markdown string to check from.
+ * @param {string} markdown - The markdown content as a string.
+ * @returns {boolean} - Returns true if the position is clean, false otherwise.
+ */
+function isClean(position, markdown) {
+  for (let i = position; i >= 0; i--) {
+    let character = markdown[i];
+    if (character === "\n") return true;
+    if (character !== " " && character !== "\t") return false;
+  }
+  return true;
+}
+
+/**
+ * Checks if a character repeats until the new line or there is whitespace.
+ * @param {string} character
+ * @param {number} position
+ * @param {string} markdown
+ * @returns {boolean}
+ */
+function isThisCharacterUntilNewLine(character, position, markdown) {
+  let newLine = markdown.indexOf("\n", position);
+  if (newLine === -1) newLine = markdown.length;
+  return markdown
+    .substring(position, newLine)
+    .trim()
+    .split("")
+    .every((char) => char === character);
+}
+
+/**
+ * Checks if the position in the markdown is a horizontal rule.
+ * @param {number} position - The index position in the markdown.
+ * @param {string} markdown - The markdown content as a string.
+ * @returns {boolean} - Returns true if it's a valid horizontal rule.
+ */
+function isHorizontalRule(position, markdown) {
+  if (!isClean(position, markdown)) return false;
+
+  let line = markdown.substring(position).split("\n")[0].trim();
+  if (line.length < 3) return false;
+
+  let firstChar = line[0];
+  if (!["-", "*", "_"].includes(firstChar)) return false;
+
+  return isThisCharacterUntilNewLine(firstChar, position, markdown);
+}
+
+/**
  * Moves the position to the first character after a heading.
  *
  * @param {number} position - The index where the heading starts.
@@ -145,19 +197,17 @@ function tokenizeMarkDown(markdown) {
       let content = extractHeadingContent(position, markdown, level);
       position = moveAfterHeading(position, markdown);
       tokens.push({ level, content, type: "heading" });
-    } else {
-      position++;
+    } else if (isHorizontalRule(position, markdown)) {
+      console.log("rul rule ");
     }
+    position++;
   }
 
   return tokens;
 }
 
 function main() {
-  var markdown = `### Hello
- ### hello
-mmqmdmd ####n
-###### hello #####`;
+  var markdown = `  *****`;
   var t = tokenizeMarkDown(markdown);
   console.log(t);
 }
