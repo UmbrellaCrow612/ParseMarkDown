@@ -1,3 +1,74 @@
+function moveAfterList(position, markdown) {
+  var newLine = markdown.indexOf("\n", position);
+  if (newLine === -1) {
+    newLine = markdown.length;
+  }
+
+  return Math.min(newLine, markdown.length);
+}
+
+/**
+ *
+ * @param {number} position
+ * @param {string} markdown
+ */
+function extractListContent(position, markdown) {
+  var newLine = markdown.indexOf("\n", position);
+  if (newLine === -1) newLine = markdown.length;
+
+  return markdown.substring(position + 1, newLine).trim();
+}
+
+/**
+ *
+ * @param {number} position
+ * @param {string} markdown
+ */
+function countWhiteSpaceBackwards(position, markdown) {
+  let counter = 0;
+
+  for (let i = position - 1; i >= 0; i--) {
+    const char = markdown[i];
+
+    if (char === "\n" || (char !== " " && char !== "\t")) {
+      return counter;
+    }
+
+    counter++;
+  }
+
+  return counter;
+}
+
+/**
+ *
+ * @param {number} position
+ * @param {string} markdown
+ */
+function isList(position, markdown) {
+  if (!isClean(position, markdown)) return false;
+  let num = countWhiteSpaceBackwards(position, markdown);
+  if (num == 2) {
+    return false; // could be a su list
+  }
+
+  let character = markdown[position];
+
+  if (character == "-" && markdown[position + 1] == " ") {
+    return true;
+  }
+
+  if (character == "*" && markdown[position + 1] == " ") {
+    return true;
+  }
+
+  if (character == "+" && markdown[position + 1] == " ") {
+    return true;
+  }
+
+  return false;
+}
+
 /**
  * @param {number} level
  * @param {number} position
@@ -21,7 +92,7 @@ function moveAfterBlockQuote(position, markdown) {
   var newLine = markdown.indexOf("\n", position);
   if (newLine === -1) newLine = markdown.length;
 
-  return Math.min(newLine + 1, markdown.length);
+  return Math.min(newLine, markdown.length);
 }
 
 /**
@@ -83,7 +154,7 @@ function moveAfterHorizontalRule(position, markdown) {
   let newLine = markdown.indexOf("\n", position);
   if (newLine === -1) newLine = markdown.length;
 
-  return Math.min(newLine + 1, newLine);
+  return Math.min(newLine, newLine);
 }
 
 /**
@@ -95,10 +166,13 @@ function moveAfterHorizontalRule(position, markdown) {
  * @returns {boolean} - Returns true if the position is clean, false otherwise.
  */
 function isClean(position, markdown) {
+  let c = 0;
   for (let i = position - 1; i >= 0; i--) {
     let character = markdown[i];
     if (character === "\n") return true;
     if (character !== " " && character !== "\t") return false;
+    c++;
+    if (c >= 4) return false;
   }
   return true;
 }
@@ -156,7 +230,7 @@ function moveAfterHeading(position, markdown) {
   }
 
   // Return the position after the newline, ensuring it doesn't exceed bounds
-  return Math.min(newLine + 1, markdown.length);
+  return Math.min(newLine, markdown.length);
 }
 
 /**
@@ -293,6 +367,10 @@ function tokenizeMarkDown(markdown) {
       let content = extractBlockQuoteContent(position, markdown, level);
       position = moveAfterBlockQuote(position, markdown);
       tokens.push({ level, content, type: "block quote" });
+    } else if (isList(position, markdown)) {
+      let content = extractListContent(position, markdown);
+      position = moveAfterList(position, markdown);
+      tokens.push({ content, type: "list item" });
     }
     position++;
   }
@@ -302,10 +380,20 @@ function tokenizeMarkDown(markdown) {
 
 function main() {
   var markdown = `
-  >> block
-  >>> s
-  >>>s2s
-  12>.>>w`;
+- List one
++ List two
+* List three
+>> Block 
+>>>> Block
+>>>2
+##### heading
+### dod
+###### kdn
+# Heading
+###okd
+`;
+
+  var markdown2 = `+ Hello`;
   var t = tokenizeMarkDown(markdown);
   console.log(t);
 }
