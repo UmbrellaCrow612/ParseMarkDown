@@ -1,4 +1,80 @@
 /**
+ * @param {number} level
+ * @param {number} position
+ * @param {string} markdown
+ */
+function extractBlockQuoteContent(position, markdown, level) {
+  var newLine = markdown.indexOf("\n", position);
+  if (newLine === -1) newLine = markdown.length;
+
+  var line = markdown.substring(position, newLine).trim();
+
+  return line.substring(level).trim();
+}
+
+/**
+ *
+ * @param {number} position
+ * @param {string} markdown
+ */
+function moveAfterBlockQuote(position, markdown) {
+  var newLine = markdown.indexOf("\n", position);
+  if (newLine === -1) newLine = markdown.length;
+
+  return Math.min(newLine + 1, markdown.length);
+}
+
+/**
+ *
+ * @param {number} position
+ * @param {string} markdown
+ */
+function countBlockQuoteLevel(position, markdown) {
+  let counter = 0;
+  while (position < markdown.length) {
+    if (markdown[position] === ">") {
+      counter++;
+      position++;
+      continue;
+    } else if (markdown[position] === " ") {
+      position++;
+      continue;
+    } else {
+      return counter;
+    }
+  }
+
+  return counter;
+}
+
+/**
+ * Checks if a given position in the markdown content starts a blockquote.
+ *
+ * @param {number} position - The index in the markdown string.
+ * @param {string} markdown - The markdown content.
+ * @returns {boolean} - True if the position starts a blockquote, false otherwise.
+ */
+function isBlockQuote(position, markdown) {
+  if (!isClean(position, markdown)) return false;
+
+  let i = position;
+
+  while (i < markdown.length && markdown[i] === " ") {
+    i++;
+  }
+
+  if (i < markdown.length && markdown[i] === ">") {
+    i++;
+    if (i < markdown.length && markdown[i] === " ") {
+      i++;
+    }
+    return true;
+  }
+
+  return false;
+}
+
+/**
  * Returns the new position after the horizontal rule
  * @param {string} position
  * @param {string} markdown
@@ -19,7 +95,7 @@ function moveAfterHorizontalRule(position, markdown) {
  * @returns {boolean} - Returns true if the position is clean, false otherwise.
  */
 function isClean(position, markdown) {
-  for (let i = position; i >= 0; i--) {
+  for (let i = position - 1; i >= 0; i--) {
     let character = markdown[i];
     if (character === "\n") return true;
     if (character !== " " && character !== "\t") return false;
@@ -212,6 +288,11 @@ function tokenizeMarkDown(markdown) {
     } else if (isHorizontalRule(position, markdown)) {
       position = moveAfterHorizontalRule(position, markdown);
       tokens.push({ type: "horizontal rule" });
+    } else if (isBlockQuote(position, markdown)) {
+      let level = countBlockQuoteLevel(position, markdown);
+      let content = extractBlockQuoteContent(position, markdown, level);
+      position = moveAfterBlockQuote(position, markdown);
+      tokens.push({ level, content, type: "block quote" });
     }
     position++;
   }
@@ -220,12 +301,11 @@ function tokenizeMarkDown(markdown) {
 }
 
 function main() {
-  var markdown = `  *****
-  -------
-  _____
-  ___diwnd
-  ### Heading one
-  ##diin`;
+  var markdown = `
+  >> block
+  >>> s
+  >>>s2s
+  12>.>>w`;
   var t = tokenizeMarkDown(markdown);
   console.log(t);
 }
