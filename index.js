@@ -1,7 +1,17 @@
-const rules = require("./rules/headings");
+const { heading } = require("./elements/headings");
+const { tokenizer } = require("./tokenizer");
 
 function main() {
-  console.log(rules.heading.headingWithTrailingHashes.rule);
+  let markdown = `
+  # Heading one
+  ## Heading two
+  ### Heading three
+  #### Heading four
+  ##### Heading five
+  ###### Heading six 
+  none
+  `;
+  tokenizer(markdown);
 }
 
 main();
