@@ -1,3 +1,28 @@
+/**
+ *
+ * @param {number} position
+ * @param {string} markdown
+ */
+function isSubList(position, markdown) {
+  if (!isClean(position, markdown)) return false;
+
+  let count = countWhiteSpaceBackwards(position, markdown);
+  if (count == 2) {
+    if (markdown[position] === "-" && markdown[position + 1] === " ") {
+      return true;
+    }
+
+    if (markdown[position] === "*" && markdown[position + 1] === " ") {
+      return true;
+    }
+
+    if (markdown[position] === "+" && markdown[position + 1] === " ") {
+      return true;
+    }
+  }
+  return false;
+}
+
 function moveAfterList(position, markdown) {
   var newLine = markdown.indexOf("\n", position);
   if (newLine === -1) {
@@ -371,6 +396,10 @@ function tokenizeMarkDown(markdown) {
       let content = extractListContent(position, markdown);
       position = moveAfterList(position, markdown);
       tokens.push({ content, type: "list item" });
+    } else if (isSubList(position, markdown)) {
+      let content = extractListContent(position, markdown);
+      position = moveAfterList(position, markdown);
+      tokens.push({ content, type: "sub list" });
     }
     position++;
   }
@@ -381,16 +410,11 @@ function tokenizeMarkDown(markdown) {
 function main() {
   var markdown = `
 - List one
-+ List two
-* List three
->> Block 
->>>> Block
->>>2
-##### heading
-### dod
-###### kdn
-# Heading
-###okd
+  - Sub list one
++ List two 
+  + Sub list two
+* List three 
+  * Sub list three
 `;
 
   var markdown2 = `+ Hello`;
