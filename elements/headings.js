@@ -1,4 +1,4 @@
-const { getNewLineIndex } = require("../utils");
+const { getNewLineIndex, getCurrentLineAndNext } = require("../utils");
 
 /**
  * These are all rules or ways we can use to determine if something is a valid heading in markdown
@@ -78,7 +78,41 @@ const heading = {
      * ===========
      * with ====== under a text to make it a header or ---- for heading 2
      */
-    rule: /^s{0,3}.*\n[=,-]{1,}\n/,
+    rule: /^\s{0,3}.*\n[=,-]+$/,
+
+    /**
+     * This helper function allows you to check if a position in markdown is a valid setext heading
+     * @param {number} position index position
+     * @param {string} markdown markdown as string
+     */
+    isHeading(position, markdown) {
+      let regex = new RegExp(this.rule);
+      let lines = getCurrentLineAndNext(position, markdown);
+      if (!regex.test(lines)) return false;
+
+      return true;
+    },
+
+    /**
+     * Helper function to extract the content of setext heading
+     * @param {number} position
+     * @param {string} markdown
+     */
+    extractContent(position, markdown) {
+      return markdown.substring(position, getNewLineIndex(position, markdown));
+    },
+
+    /**
+     * Helper function to move past setext heading
+     * @param {number} position
+     * @param {string} markdown
+     */
+    movePastSetextHeading(position, markdown) {
+      let firstNewlineIndex = getNewLineIndex(position, markdown);
+
+      let secondNewlineIndex = getNewLineIndex(firstNewlineIndex + 1, markdown);
+      return secondNewlineIndex;
+    },
   },
 
   /**
@@ -131,15 +165,15 @@ const heading = {
       };
     },
 
-      /**
+    /**
      * This helps move past the heading with trails heading to the next newline
      * @param {number} position index position
      * @param {string} markdown markdown as string
      * @returns {number} - The new index position
      */
-      movePastHeading(position, markdown) {
-        return getNewLineIndex(position, markdown);
-      },
+    movePastHeading(position, markdown) {
+      return getNewLineIndex(position, markdown);
+    },
   },
 };
 

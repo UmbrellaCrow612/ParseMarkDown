@@ -11,25 +11,27 @@ function tokenizer(markdown) {
   for (let i = 0; i < markdown.length; ) {
     switch (true) {
       case heading.headingWithTrailingHashes.isHeading(i, markdown):
-        let result = heading.headingWithTrailingHashes.extractHeading(
-          i,
-          markdown
-        );
-        tokens.push({ ...result, type: elementTypes.heading });
+        tokens.push({
+          ...heading.headingWithTrailingHashes.extractHeading(i, markdown),
+          type: elementTypes.heading,
+        });
         i = heading.headingWithTrailingHashes.movePastHeading(i, markdown);
         break;
 
       case heading.simpleHeading.isHeading(i, markdown):
-        let { content, level } = heading.simpleHeading.extractHeading(
-          i,
-          markdown
-        );
         tokens.push({
-          content,
-          level,
+          ...heading.simpleHeading.extractHeading(i, markdown),
           type: elementTypes.heading,
         });
         i = heading.simpleHeading.movePastHeading(i, markdown);
+        break;
+
+      case heading.setextStyle.isHeading(i, markdown):
+        tokens.push({
+          content: heading.setextStyle.extractContent(i, markdown),
+          type: elementTypes.heading,
+        });
+        i = heading.setextStyle.movePastSetextHeading(i, markdown);
         break;
 
       default:

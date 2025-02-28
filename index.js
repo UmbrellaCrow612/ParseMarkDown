@@ -1,12 +1,15 @@
 const { tokenizer } = require("./tokenizer");
 
 function main() {
-  let markdown = ` ## Hello ##
-  ### Heading three
-  # Heading one 
-  ## Heading two
-  wndnew
-  `;
+  let markdown = `
+1
+---
+iwnndwdw
+---
+qwdmnqd
+====
+2
+3`;
   tokenizer(markdown);
 }
 
