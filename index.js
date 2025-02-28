@@ -1,14 +1,11 @@
 const { tokenizer } = require("./tokenizer");
 
 function main() {
-  let markdown = `
-  # Heading one
-  ## Heading two
+  let markdown = ` ## Hello ##
   ### Heading three
-  #### Heading four
-  ##### Heading five
-  ###### Heading six 
-  none
+  # Heading one 
+  ## Heading two
+  wndnew
   `;
   tokenizer(markdown);
 }

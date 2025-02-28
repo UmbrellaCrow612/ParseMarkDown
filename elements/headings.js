@@ -85,7 +85,61 @@ const heading = {
    * This contains the rules and other helper functions for trailing slashes markdown headings
    */
   headingWithTrailingHashes: {
-    rule: /^\s{0,3}(#{1,6})\s.*\s\1\s*$/m,
+    /**
+     * Rule to see if a text is a valid heading with trails
+     */
+    rule: /^\s{0,3}(#{1,6})\s.*\s\1\s{0,}$/,
+
+    /**
+     * Extract text between # and #
+     */
+    extractRule: /[^\s#].*[^#]/,
+
+    /**
+     * This helps with counting the heading level by matching the first set of repeating #
+     */
+    countHeadingLevelRule: /[^\s]#{1,6}/,
+
+    /**
+     * This helper function allows you to check if a position in markdown is a valid heading with trails
+     * @param {number} position index position
+     * @param {string} markdown markdown as string
+     */
+    isHeading(position, markdown) {
+      let regex = new RegExp(this.rule);
+      let line = markdown.substring(
+        position,
+        getNewLineIndex(position, markdown)
+      );
+      if (!regex.test(line)) return false;
+      return true;
+    },
+
+    /**
+     * This helper function allows you extract content in a heading with trails
+     * @param {number} position index position
+     * @param {string} markdown markdown as string
+     */
+    extractHeading(position, markdown) {
+      let line = markdown.substring(
+        position,
+        getNewLineIndex(position, markdown)
+      );
+      return {
+        content: line.match(this.extractRule)[0].trim(),
+        level: line.match(this.countHeadingLevelRule)[0].length,
+      };
+    },
+
+      /**
+     * This helps move past the heading with trails heading to the next newline
+     * @param {number} position index position
+     * @param {string} markdown markdown as string
+     * @returns {number} - The new index position
+     */
+      movePastHeading(position, markdown) {
+        return getNewLineIndex(position, markdown);
+      },
   },
 };
 
