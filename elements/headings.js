@@ -99,7 +99,7 @@ const heading = {
      * @param {string} markdown
      */
     extractContent(position, markdown) {
-      return markdown.substring(position, getNewLineIndex(position, markdown));
+      return markdown.substring(position, getNewLineIndex(position, markdown)).trim();
     },
 
     /**

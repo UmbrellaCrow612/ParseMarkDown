@@ -2,14 +2,19 @@ const { tokenizer } = require("./tokenizer");
 
 function main() {
   let markdown = `
-1
----
-iwnndwdw
----
-qwdmnqd
-====
-2
-3`;
+> Hello
+owenonewc
+# Heading one
+#Failed heading
+sex
+-----
+s two
+=====
+s broken
+-dded
+>> Block quote
+> Block quote
+  `;
   tokenizer(markdown);
 }
 

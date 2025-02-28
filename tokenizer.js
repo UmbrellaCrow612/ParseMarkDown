@@ -1,3 +1,4 @@
+const { blockQuote } = require("./elements/blockquote");
 const { heading } = require("./elements/headings");
 const { elementTypes } = require("./elements/types");
 
@@ -32,6 +33,14 @@ function tokenizer(markdown) {
           type: elementTypes.heading,
         });
         i = heading.setextStyle.movePastSetextHeading(i, markdown);
+        break;
+
+      case blockQuote.isBlockQuote(i, markdown):
+        tokens.push({
+          ...blockQuote.extractContent(i, markdown),
+          type: elementTypes.blockQuote,
+        });
+        i = blockQuote.movePastBlockQuote(i, markdown);
         break;
 
       default:
