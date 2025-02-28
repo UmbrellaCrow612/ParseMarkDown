@@ -21,6 +21,11 @@ const heading = {
     extractRule: /[^\s#].*/,
 
     /**
+     * This helps with counting the heading level by matching the first set of repeating #
+     */
+    countHeadingLevelRule: /[^\s]#*/,
+
+    /**
      * Helper function to see if string is markdown heading for simple heading format
      * @param {number} position the current position
      * @param {string} markdown markdown as string
@@ -58,7 +63,7 @@ const heading = {
 
       return {
         content: line.match(this.extractRule).toString().trim(),
-        level: line.split("#").length - 1,
+        level: line.match(this.countHeadingLevelRule)[0].length,
       };
     },
   },

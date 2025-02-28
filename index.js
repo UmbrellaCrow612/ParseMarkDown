@@ -1,4 +1,3 @@
-const { heading } = require("./elements/headings");
 const { tokenizer } = require("./tokenizer");
 
 function main() {

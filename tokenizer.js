@@ -1,4 +1,5 @@
 const { heading } = require("./elements/headings");
+const { elementTypes } = require("./elements/types");
 
 /**
  *
@@ -16,6 +17,7 @@ function tokenizer(markdown) {
       tokens.push({
         content,
         level,
+        type: elementTypes.heading,
       });
       i = heading.simpleHeading.movePastHeading(i, markdown);
     } else {
