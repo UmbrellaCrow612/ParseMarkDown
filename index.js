@@ -1,13 +1,7 @@
 const { tokenizer } = require("./tokenizer");
 
 function main() {
-  let markdown = `
-------- 
-   *******
-   ______
- 
-
-  `;
+  let markdown = `-- Not valid`;
   tokenizer(markdown);
 }
 

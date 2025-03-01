@@ -4,6 +4,7 @@ const elementTypes = {
   list: "list",
   subList: "sub-list",
   horizontalRule: "horizontal-rule",
+  paragraph: "paragraph"
 };
 
 module.exports = {

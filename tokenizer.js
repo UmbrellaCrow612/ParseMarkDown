@@ -2,6 +2,7 @@ const { blockQuote } = require("./elements/blockquote");
 const { heading } = require("./elements/headings");
 const { horizontalRule } = require("./elements/HorizontalRule");
 const { list } = require("./elements/list");
+const { paragraph } = require("./elements/paragraph");
 const { elementTypes } = require("./elements/types");
 
 /**
@@ -70,7 +71,11 @@ function tokenizer(markdown) {
         break;
 
       default:
-        i++;
+        tokens.push({
+          content: paragraph.extractContent(i, markdown),
+          type: elementTypes.paragraph,
+        });
+        i = paragraph.movePastParagraph(i, markdown);
         break;
     }
   }
