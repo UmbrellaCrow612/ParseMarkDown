@@ -51,6 +51,16 @@ function tokenizer(markdown) {
           type: elementTypes.list,
         });
         i = list.regular.movePastList(i, markdown);
+        break;
+
+      case list.subList.isSubList(i, markdown):
+        tokens.push({
+          ...list.subList.extractContent(i, markdown),
+          type: elementTypes.subList,
+        });
+        i = list.subList.movePastSubList(i, markdown);
+        break;
+
       default:
         i++;
         break;

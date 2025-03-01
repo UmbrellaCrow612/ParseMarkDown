@@ -2,22 +2,14 @@ const { tokenizer } = require("./tokenizer");
 
 function main() {
   let markdown = `
-> Hello
-owenonewc
-# Heading one
-#Failed heading
-s
------
-s two
-=====
-s broken
--dded
->> Block quote
-> Block quote
-- List one
-+ List one
-* List one
-1. List one
+
+- Regular list
+  - Sub list
+* Regular list
+  * Sub list
++ Regular list
+  + Sub list
+  + Sub list
   `;
   tokenizer(markdown);
 }
