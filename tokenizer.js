@@ -1,5 +1,6 @@
 const { blockQuote } = require("./elements/blockquote");
 const { heading } = require("./elements/headings");
+const { list } = require("./elements/list");
 const { elementTypes } = require("./elements/types");
 
 /**
@@ -30,6 +31,7 @@ function tokenizer(markdown) {
       case heading.setextStyle.isHeading(i, markdown):
         tokens.push({
           content: heading.setextStyle.extractContent(i, markdown),
+          level: 1,
           type: elementTypes.heading,
         });
         i = heading.setextStyle.movePastSetextHeading(i, markdown);
@@ -43,6 +45,12 @@ function tokenizer(markdown) {
         i = blockQuote.movePastBlockQuote(i, markdown);
         break;
 
+      case list.regular.isList(i, markdown):
+        tokens.push({
+          ...list.regular.extractContent(i, markdown),
+          type: elementTypes.list,
+        });
+        i = list.regular.movePastList(i, markdown);
       default:
         i++;
         break;

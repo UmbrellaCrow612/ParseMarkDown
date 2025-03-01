@@ -6,7 +6,7 @@ function main() {
 owenonewc
 # Heading one
 #Failed heading
-sex
+s
 -----
 s two
 =====
@@ -14,6 +14,10 @@ s broken
 -dded
 >> Block quote
 > Block quote
+- List one
++ List one
+* List one
+1. List one
   `;
   tokenizer(markdown);
 }
