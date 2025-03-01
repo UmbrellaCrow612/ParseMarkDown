@@ -1,5 +1,6 @@
 const { blockQuote } = require("./elements/blockquote");
 const { heading } = require("./elements/headings");
+const { horizontalRule } = require("./elements/HorizontalRule");
 const { list } = require("./elements/list");
 const { elementTypes } = require("./elements/types");
 
@@ -59,6 +60,13 @@ function tokenizer(markdown) {
           type: elementTypes.subList,
         });
         i = list.subList.movePastSubList(i, markdown);
+        break;
+
+      case horizontalRule.isHorizontalRule(i, markdown):
+        tokens.push({
+          type: elementTypes.horizontalRule,
+        });
+        i = horizontalRule.movePastHorizontalRule(i, markdown);
         break;
 
       default:

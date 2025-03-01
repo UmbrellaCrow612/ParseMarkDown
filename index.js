@@ -2,14 +2,11 @@ const { tokenizer } = require("./tokenizer");
 
 function main() {
   let markdown = `
+------- 
+   *******
+   ______
+ 
 
-- Regular list
-  - Sub list
-* Regular list
-  * Sub list
-+ Regular list
-  + Sub list
-  + Sub list
   `;
   tokenizer(markdown);
 }
