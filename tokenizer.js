@@ -1,4 +1,5 @@
 const { blockQuote } = require("./elements/blockquote");
+const { code } = require("./elements/code");
 const { heading } = require("./elements/headings");
 const { horizontalRule } = require("./elements/HorizontalRule");
 const { list } = require("./elements/list");
@@ -68,6 +69,14 @@ function tokenizer(markdown) {
           type: elementTypes.horizontalRule,
         });
         i = horizontalRule.movePastHorizontalRule(i, markdown);
+        break;
+
+      case code.tab.isCodeBlock(i, markdown):
+        tokens.push({
+          content: code.tab.extractContent(i, markdown),
+          type: elementTypes.codeTab,
+        });
+        i = code.tab.movePastCodeBlock(i, markdown);
         break;
 
       default:

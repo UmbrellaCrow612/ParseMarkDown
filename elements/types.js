@@ -4,7 +4,8 @@ const elementTypes = {
   list: "list",
   subList: "sub-list",
   horizontalRule: "horizontal-rule",
-  paragraph: "paragraph"
+  paragraph: "paragraph",
+  codeTab: "code-tab",
 };
 
 module.exports = {
