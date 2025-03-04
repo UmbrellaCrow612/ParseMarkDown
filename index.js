@@ -1,4 +1,4 @@
-const { tokenizer } = require("./tokenizer");
+const { lexer } = require("./lexer");
 
 function main() {
   let markdown = `~~~js  
@@ -10,7 +10,7 @@ more code
 ~~~python
 code bloc two
 ~~~`;
-  tokenizer(markdown);
+  lexer(markdown);
 }
 
 main();

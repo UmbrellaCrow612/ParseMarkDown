@@ -7,10 +7,11 @@ const { paragraph } = require("./elements/paragraph");
 const { elementTypes } = require("./elements/types");
 
 /**
- *
+ * Converts markdown string content to an array of tokens, think of this as the lexer to then use the tokens down the line
+ * in a parser to convert the tokens into HTMl, PDF or other content in the parser
  * @param {string} markdown markdown as string
  */
-function tokenizer(markdown) {
+function lexer(markdown) {
   /**
    * @type {Array<Token>}
    */
@@ -124,5 +125,5 @@ function tokenizer(markdown) {
 }
 
 module.exports = {
-  tokenizer,
+  lexer,
 };
