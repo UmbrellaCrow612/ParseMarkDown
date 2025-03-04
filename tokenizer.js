@@ -11,6 +11,9 @@ const { elementTypes } = require("./elements/types");
  * @param {string} markdown markdown as string
  */
 function tokenizer(markdown) {
+  /**
+   * @type {Array<Token>}
+   */
   const tokens = [];
 
   for (let i = 0; i < markdown.length; ) {
@@ -51,6 +54,7 @@ function tokenizer(markdown) {
       case list.regular.isList(i, markdown):
         tokens.push({
           ...list.regular.extractContent(i, markdown),
+          level: null,
           type: elementTypes.list,
         });
         i = list.regular.movePastList(i, markdown);
@@ -59,6 +63,7 @@ function tokenizer(markdown) {
       case list.subList.isSubList(i, markdown):
         tokens.push({
           ...list.subList.extractContent(i, markdown),
+          level: null,
           type: elementTypes.subList,
         });
         i = list.subList.movePastSubList(i, markdown);
@@ -67,6 +72,9 @@ function tokenizer(markdown) {
       case horizontalRule.isHorizontalRule(i, markdown):
         tokens.push({
           type: elementTypes.horizontalRule,
+          level: null,
+
+          content: null,
         });
         i = horizontalRule.movePastHorizontalRule(i, markdown);
         break;
@@ -74,6 +82,7 @@ function tokenizer(markdown) {
       case code.tab.isCodeBlock(i, markdown):
         tokens.push({
           content: code.tab.extractContent(i, markdown),
+          level: null,
           type: elementTypes.codeTab,
         });
         i = code.tab.movePastCodeBlock(i, markdown);
@@ -82,6 +91,7 @@ function tokenizer(markdown) {
       default:
         tokens.push({
           content: paragraph.extractContent(i, markdown),
+          level: null,
           type: elementTypes.paragraph,
         });
         i = paragraph.movePastParagraph(i, markdown);
