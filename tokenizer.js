@@ -15,10 +15,6 @@ function tokenizer(markdown) {
 
   for (let i = 0; i < markdown.length; ) {
     switch (true) {
-      case markdown[i] === " ":
-        i++;
-        break;
-
       case heading.headingWithTrailingHashes.isHeading(i, markdown):
         tokens.push({
           ...heading.headingWithTrailingHashes.extractHeading(i, markdown),
