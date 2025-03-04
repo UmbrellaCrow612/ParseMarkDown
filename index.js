@@ -1,12 +1,7 @@
 const { tokenizer } = require("./tokenizer");
 
 function main() {
-  let markdown = `
-           
-                       
-                        
-                       
-                code one
+  let markdown = `              
   `;
   tokenizer(markdown);
 }
