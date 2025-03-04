@@ -1,8 +1,12 @@
 const { tokenizer } = require("./tokenizer");
 
 function main() {
-  let markdown = `              
-  `;
+  let markdown = `---
+odoned
+sex head
+----
+sex head
+=====`;
   tokenizer(markdown);
 }
 

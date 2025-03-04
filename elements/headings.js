@@ -78,7 +78,7 @@ const heading = {
      * ===========
      * with ====== under a text to make it a header or ---- for heading 2
      */
-    rule: /^\s{0,3}.*\n\s{0,}[=,-]+$/,
+    rule: /^\s{0,3}\S.*\n\s{0,}[=,-]+$/,
 
     /**
      * This helper function allows you to check if a position in markdown is a valid setext heading
@@ -113,7 +113,7 @@ const heading = {
       let firstNewlineIndex = getNewLineIndex(position, markdown);
 
       let secondNewlineIndex = getNewLineIndex(firstNewlineIndex + 1, markdown);
-      return secondNewlineIndex;
+      return secondNewlineIndex + 1;
     },
   },
 
