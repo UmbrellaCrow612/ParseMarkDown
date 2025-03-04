@@ -32,7 +32,7 @@ const horizontalRule = {
    * @param {string} markdown
    */
   movePastHorizontalRule(position, markdown) {
-    return getNewLineIndex(position, markdown);
+    return getNewLineIndex(position, markdown) + 1;
   },
 };
 

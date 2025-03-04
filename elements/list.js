@@ -57,7 +57,7 @@ const list = {
      * @param {string} markdown
      */
     movePastList(position, markdown) {
-      return getNewLineIndex(position, markdown);
+      return getNewLineIndex(position, markdown) + 1;
     },
   },
 
@@ -112,7 +112,7 @@ const list = {
      * @param {string} markdown
      */
     movePastSubList(position, markdown) {
-      return getNewLineIndex(position, markdown);
+      return getNewLineIndex(position, markdown) + 1;
     },
   },
 };

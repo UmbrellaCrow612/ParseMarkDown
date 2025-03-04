@@ -3,6 +3,7 @@ const { code } = require("./elements/code");
 const { heading } = require("./elements/headings");
 const { horizontalRule } = require("./elements/HorizontalRule");
 const { list } = require("./elements/list");
+const { misc } = require("./elements/misc");
 const { paragraph } = require("./elements/paragraph");
 const { elementTypes } = require("./elements/types");
 
@@ -15,6 +16,13 @@ function tokenizer(markdown) {
 
   for (let i = 0; i < markdown.length; ) {
     switch (true) {
+      case misc.whitespace.isPureWhiteSpace(i, markdown):
+        tokens.push({
+          type: elementTypes.whitespace,
+        });
+        i = misc.whitespace.movePastWhiteSpace(i, markdown);
+        break;
+
       case heading.headingWithTrailingHashes.isHeading(i, markdown):
         tokens.push({
           ...heading.headingWithTrailingHashes.extractHeading(i, markdown),

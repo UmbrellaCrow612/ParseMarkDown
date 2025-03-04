@@ -47,7 +47,7 @@ const heading = {
      * @returns {number} - The new index position
      */
     movePastHeading(position, markdown) {
-      return getNewLineIndex(position, markdown);
+      return getNewLineIndex(position, markdown) + 1;
     },
 
     /**
@@ -99,7 +99,9 @@ const heading = {
      * @param {string} markdown
      */
     extractContent(position, markdown) {
-      return markdown.substring(position, getNewLineIndex(position, markdown)).trim();
+      return markdown
+        .substring(position, getNewLineIndex(position, markdown))
+        .trim();
     },
 
     /**
@@ -132,7 +134,7 @@ const heading = {
     /**
      * This helps with counting the heading level by matching the first set of repeating #
      */
-    countHeadingLevelRule: /[^\s]#{1,6}/,
+    countHeadingLevelRule: /[^\s]#*/,
 
     /**
      * This helper function allows you to check if a position in markdown is a valid heading with trails
@@ -172,7 +174,7 @@ const heading = {
      * @returns {number} - The new index position
      */
     movePastHeading(position, markdown) {
-      return getNewLineIndex(position, markdown);
+      return getNewLineIndex(position, markdown) + 1;
     },
   },
 };

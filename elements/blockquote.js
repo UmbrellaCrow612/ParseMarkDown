@@ -56,7 +56,7 @@ const blockQuote = {
    * @param {string} markdown Markdown string
    */
   movePastBlockQuote(position, markdown) {
-    return getNewLineIndex(position, markdown);
+    return getNewLineIndex(position, markdown) + 1;
   },
 };
 

@@ -13,7 +13,7 @@ const code = {
      * Rule to see if it is a tab type code block
      * there has to be at least 4 tab spaces for a code block
      */
-    rule: /^\s{4}/,
+    rule: /^\s{4}./,
 
     /**
      * Rule to get the tab code block content by ignoring the space at the beginning
@@ -45,7 +45,9 @@ const code = {
         position,
         getNewLineIndex(position, markdown)
       );
-      return line.match(this.extractContentRule)[0];
+      console.log(line);
+      console.log(line.match(this.extractContentRule));
+      return line.match(this.extractContentRule)[0] ?? "";
     },
 
     /**

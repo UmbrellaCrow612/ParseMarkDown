@@ -1,10 +1,21 @@
 const { tokenizer } = require("./tokenizer");
 
 function main() {
-  let markdown = `
-    Code block One
-    Code block two
-    Code block three
+  let markdown = `# Heading one
+  ## Heading two
+  ### Heading three 
+  #### Heading four
+  ##### heading five
+  ###### Heading six
+
+
+    
+
+  Set
+  ---
+  set two
+  ====
+# Heading trail #
   `;
   tokenizer(markdown);
 }

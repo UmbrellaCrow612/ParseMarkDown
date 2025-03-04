@@ -17,9 +17,9 @@ const paragraph = {
    * @param {number} position
    * @param {string} markdown
    */
-  movePastParagraph(index, markdown) {
-    const newLineIndex = getNewLineIndex(index, markdown);
-    return newLineIndex > index ? newLineIndex : index + 1; // Ensure progress
+  movePastParagraph(position, markdown) {
+    const newLineIndex = getNewLineIndex(position, markdown);
+    return newLineIndex > position ? newLineIndex : position + 1; // Ensure progress
   },
 };
 
