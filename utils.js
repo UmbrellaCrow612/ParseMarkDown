@@ -2,7 +2,7 @@
  * Get the index of the next newline from the current position
  * @param {number} position
  * @param {string} markdown
- * @returns {number} the index of the new line
+ * @returns {number} the index of the new line or the last index of the markdowns length
  */
 function getNewLineIndex(position, markdown) {
   let newLine = markdown.indexOf("\n", position);

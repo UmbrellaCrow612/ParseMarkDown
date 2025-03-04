@@ -6,7 +6,7 @@ const elementTypes = {
   horizontalRule: "horizontal-rule",
   paragraph: "paragraph",
   codeTab: "code-tab",
-  whitespace: "whitespace"
+  codeBlock: "code-block"
 };
 
 module.exports = {

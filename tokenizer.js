@@ -22,6 +22,7 @@ function tokenizer(markdown) {
         tokens.push({
           ...heading.headingWithTrailingHashes.extractHeading(i, markdown),
           type: elementTypes.heading,
+          language: null,
         });
         i = heading.headingWithTrailingHashes.movePastHeading(i, markdown);
         break;
@@ -30,6 +31,7 @@ function tokenizer(markdown) {
         tokens.push({
           ...heading.simpleHeading.extractHeading(i, markdown),
           type: elementTypes.heading,
+          language: null,
         });
         i = heading.simpleHeading.movePastHeading(i, markdown);
         break;
@@ -39,6 +41,7 @@ function tokenizer(markdown) {
           content: heading.setextStyle.extractContent(i, markdown),
           level: 1,
           type: elementTypes.heading,
+          language: null,
         });
         i = heading.setextStyle.movePastSetextHeading(i, markdown);
         break;
@@ -47,6 +50,7 @@ function tokenizer(markdown) {
         tokens.push({
           ...blockQuote.extractContent(i, markdown),
           type: elementTypes.blockQuote,
+          language: null,
         });
         i = blockQuote.movePastBlockQuote(i, markdown);
         break;
@@ -56,6 +60,7 @@ function tokenizer(markdown) {
           ...list.regular.extractContent(i, markdown),
           level: null,
           type: elementTypes.list,
+          language: null,
         });
         i = list.regular.movePastList(i, markdown);
         break;
@@ -65,6 +70,7 @@ function tokenizer(markdown) {
           ...list.subList.extractContent(i, markdown),
           level: null,
           type: elementTypes.subList,
+          language: null,
         });
         i = list.subList.movePastSubList(i, markdown);
         break;
@@ -73,8 +79,8 @@ function tokenizer(markdown) {
         tokens.push({
           type: elementTypes.horizontalRule,
           level: null,
-
           content: null,
+          language: null,
         });
         i = horizontalRule.movePastHorizontalRule(i, markdown);
         break;
@@ -84,8 +90,20 @@ function tokenizer(markdown) {
           content: code.tab.extractContent(i, markdown),
           level: null,
           type: elementTypes.codeTab,
+          language: null,
         });
         i = code.tab.movePastCodeBlock(i, markdown);
+        break;
+
+      case code.fenced.isCodeBlock(i, markdown):
+        let fenceResult = code.fenced.extractContent(i, markdown);
+        tokens.push({
+          content: fenceResult.content.join("\n"),
+          level: null,
+          type: elementTypes.codeBlock,
+          language: fenceResult.lang,
+        });
+        i = fenceResult.pos;
         break;
 
       default:
@@ -93,6 +111,7 @@ function tokenizer(markdown) {
           content: paragraph.extractContent(i, markdown),
           level: null,
           type: elementTypes.paragraph,
+          language: null,
         });
         i = paragraph.movePastParagraph(i, markdown);
         break;
