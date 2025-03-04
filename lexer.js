@@ -123,7 +123,24 @@ function lexer(markdown) {
 
   return tokens;
 }
+/**
+ * Lexer to convert block element content into array of inline tokens, go's over each word and matches it to a inline style token
+ * @param {string} input - block level element content
+ */
+function inlineLexer(input) {
+  /**
+   * Contains all inline tokens for the input sentence string
+   */
+  const tokens = [];
+  
+  var words = input.split(" ");
+
+  words.forEach((word, index) => {
+    console.log(word + index);
+  });
+}
 
 module.exports = {
   lexer,
+  inlineLexer,
 };
