@@ -2,6 +2,7 @@ const { blockQuote } = require("./elements/blockquote");
 const { code } = require("./elements/code");
 const { heading } = require("./elements/headings");
 const { horizontalRule } = require("./elements/HorizontalRule");
+const { inlineElementTypes } = require("./elements/inline/types");
 const { list } = require("./elements/list");
 const { paragraph } = require("./elements/paragraph");
 const { elementTypes } = require("./elements/types");
@@ -24,6 +25,7 @@ function lexer(markdown) {
           ...heading.headingWithTrailingHashes.extractHeading(i, markdown),
           type: elementTypes.heading,
           language: null,
+          inlineTokens: [],
         });
         i = heading.headingWithTrailingHashes.movePastHeading(i, markdown);
         break;
@@ -33,6 +35,7 @@ function lexer(markdown) {
           ...heading.simpleHeading.extractHeading(i, markdown),
           type: elementTypes.heading,
           language: null,
+          inlineTokens: [],
         });
         i = heading.simpleHeading.movePastHeading(i, markdown);
         break;
@@ -43,6 +46,7 @@ function lexer(markdown) {
           level: 1,
           type: elementTypes.heading,
           language: null,
+          inlineTokens: [],
         });
         i = heading.setextStyle.movePastSetextHeading(i, markdown);
         break;
@@ -52,6 +56,7 @@ function lexer(markdown) {
           ...blockQuote.extractContent(i, markdown),
           type: elementTypes.blockQuote,
           language: null,
+          inlineTokens: [],
         });
         i = blockQuote.movePastBlockQuote(i, markdown);
         break;
@@ -62,6 +67,7 @@ function lexer(markdown) {
           level: null,
           type: elementTypes.list,
           language: null,
+          inlineTokens: [],
         });
         i = list.regular.movePastList(i, markdown);
         break;
@@ -72,6 +78,7 @@ function lexer(markdown) {
           level: null,
           type: elementTypes.subList,
           language: null,
+          inlineTokens: [],
         });
         i = list.subList.movePastSubList(i, markdown);
         break;
@@ -82,6 +89,7 @@ function lexer(markdown) {
           level: null,
           content: null,
           language: null,
+          inlineTokens: [],
         });
         i = horizontalRule.movePastHorizontalRule(i, markdown);
         break;
@@ -92,6 +100,7 @@ function lexer(markdown) {
           level: null,
           type: elementTypes.codeTab,
           language: null,
+          inlineTokens: [],
         });
         i = code.tab.movePastCodeBlock(i, markdown);
         break;
@@ -103,6 +112,7 @@ function lexer(markdown) {
           level: null,
           type: elementTypes.codeBlock,
           language: fenceResult.lang,
+          inlineTokens: [],
         });
         i = fenceResult.pos;
         break;
@@ -113,11 +123,16 @@ function lexer(markdown) {
           level: null,
           type: elementTypes.paragraph,
           language: null,
+          inlineTokens: [],
         });
         i = paragraph.movePastParagraph(i, markdown);
         break;
     }
   }
+
+  tokens.forEach((token) => {
+    token.inlineTokens = inlineLexer(token.content);
+  });
 
   console.log(tokens);
 
@@ -130,14 +145,24 @@ function lexer(markdown) {
 function inlineLexer(input) {
   /**
    * Contains all inline tokens for the input sentence string
+   * @type {Array<InlineToken>}
    */
   const tokens = [];
-  
-  var words = input.split(" ");
+
+  var words = input.split(" "); // or some other pointer method way above still thinking
 
   words.forEach((word, index) => {
-    console.log(word + index);
+    switch (true) {
+      default:
+        tokens.push({
+          content: word,
+          type: inlineElementTypes.word,
+        });
+        break;
+    }
   });
+
+  return tokens;
 }
 
 module.exports = {
