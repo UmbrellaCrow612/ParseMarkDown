@@ -2,6 +2,7 @@ const { blockQuote } = require("./elements/blockquote");
 const { code } = require("./elements/code");
 const { heading } = require("./elements/headings");
 const { horizontalRule } = require("./elements/HorizontalRule");
+const { bold } = require("./elements/inline/bold");
 const { inlineElementTypes } = require("./elements/inline/types");
 const { list } = require("./elements/list");
 const { paragraph } = require("./elements/paragraph");
@@ -134,7 +135,7 @@ function lexer(markdown) {
     token.inlineTokens = inlineLexer(token.content);
   });
 
-  console.log(tokens);
+  console.log(JSON.stringify(tokens));
 
   return tokens;
 }
@@ -149,18 +150,15 @@ function inlineLexer(input) {
    */
   const tokens = [];
 
-  var words = input.split(" "); // or some other pointer method way above still thinking
-
-  words.forEach((word, index) => {
-    switch (true) {
-      default:
-        tokens.push({
-          content: word,
-          type: inlineElementTypes.word,
-        });
-        break;
-    }
-  });
+  let boldResult = bold.extractBold(input);
+  if (boldResult.success) {
+    boldResult.matches.forEach((x) => {
+      tokens.push({
+        ...x,
+        type: inlineElementTypes.bold,
+      });
+    });
+  }
 
   return tokens;
 }

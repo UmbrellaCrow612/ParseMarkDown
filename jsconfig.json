@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "checkJs": true
+    "checkJs": true,
+    "target": "ES2024",
+    "lib": ["ES2024", "DOM"]
   },
   "compileOnSave": true
 }
