@@ -9,6 +9,11 @@ const boldAndItalic = {
   rule: /\*{3}[^\s\*](.*?)[^\s\*]\*{3}/g,
 
   /**
+   * Rule to get content of bold and italic 
+   */
+  extractContentRule: /\*{3}(.*?)\*{3}/,
+
+  /**
    * Helper function ot get all bold and italic elements from a string
    * @param {string} str
    */
@@ -19,7 +24,7 @@ const boldAndItalic = {
 
     matches.forEach((x) => {
       result.push({
-        content: x[0],
+        content: x[0].match(this.extractContentRule)[1],
         startIndex: x.index,
         endIndex: x.index + x[0].length - 1,
       });

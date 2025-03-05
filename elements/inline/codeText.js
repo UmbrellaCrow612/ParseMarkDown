@@ -17,7 +17,7 @@ const codeText = {
     let result = [];
     matches.forEach((x) => {
       result.push({
-        content: x[0],
+        content: x[0].slice(1, x[0].length - 1),
         startIndex: x.index,
         endIndex: x.index + x[0].length - 1,
       });
