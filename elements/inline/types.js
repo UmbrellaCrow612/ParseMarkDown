@@ -12,7 +12,9 @@ const inlineElementTypes = {
 
   strikeThrough: "strike-through",
 
-  link: "link"
+  link: "link",
+
+  image: "image",
 };
 
 module.exports = {

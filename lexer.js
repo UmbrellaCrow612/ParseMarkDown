@@ -5,6 +5,7 @@ const { horizontalRule } = require("./elements/horizontalRule");
 const { bold } = require("./elements/inline/bold");
 const { boldAndItalic } = require("./elements/inline/boldAndItalic");
 const { codeText } = require("./elements/inline/codeText");
+const { image } = require("./elements/inline/image");
 const { italic } = require("./elements/inline/Italic");
 const { link } = require("./elements/inline/link");
 const { strikethrough } = require("./elements/inline/strikethrough");
@@ -213,6 +214,17 @@ function inlineLexer(input) {
         type: inlineElementTypes.link,
       });
     });
+  }
+
+
+  let imageResult = image.extractImage(input);
+  if(imageResult.success){
+    imageResult.matches.forEach(x => {
+      tokens.push({
+        ...x,
+        type: inlineElementTypes.image
+      })
+    })
   }
 
   return tokens;

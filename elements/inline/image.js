@@ -1,23 +1,23 @@
 /**
- * Inline link element
+ * Markdown inline img tag
  */
-const link = {
+const image = {
   /**
-   * Rule to  get all inline markdown links
+   * Rule to get all inline img tags in markdown string
    */
-  rule: /(?<!\!)\[(.*?)]\((.*?)\)/g,
+  rule: /!\[(.*?)]\((.*?)\)/g,
 
   /**
-   * helper function to get all l=inline markdown links
-   * @param {string} str - String inputF
+   * Helper function to get all the inline image markdown
+   * @param {string} str string input
    */
-  extractLink(str) {
+  extractImage(str) {
     let matches = [...str.matchAll(this.rule)];
     if (matches === null) return { success: false, matches };
     let result = [];
     matches.forEach((x) => {
       result.push({
-        text: x[1],
+        altText: x[1],
         url: x[2],
       });
     });
@@ -26,5 +26,5 @@ const link = {
 };
 
 module.exports = {
-  link,
+  image,
 };
