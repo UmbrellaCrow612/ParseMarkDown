@@ -11,4 +11,6 @@
 /**
  * Inline level token
  * @typedef {Object} InlineToken
+ * @property {number} startIndex - Start index of the inline token
+ * @property {number} endIndex - End index of the inline token
  */

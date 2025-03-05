@@ -7,7 +7,9 @@ const inlineElementTypes = {
    */
   word: "word",
 
-  bold: "bold"
+  bold: "bold",
+
+  italic: "italic"
 };
 
 module.exports = {

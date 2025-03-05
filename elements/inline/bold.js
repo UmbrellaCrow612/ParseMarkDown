@@ -6,7 +6,7 @@ const bold = {
    * Rule to see if a element is a bold inline style
    * this is **word words**
    */
-  rule: /(\*{2}\S(.*?)\S\*{2})|(__\S(.*?)\S__)/g,
+  rule: /((?<!\*)\*\*[^\s*](.*?)\*\*(?!\*))|((?<!_)__[^\s_](.*?)__(?!_))/g,
 
   /**
    * Helper function to return all bold characters from a string
@@ -19,6 +19,7 @@ const bold = {
 
     m.forEach((x) => {
       result.push({
+        content: x[0],
         startIndex: x.index,
         endIndex: x.index + x[0].length - 1,
       });

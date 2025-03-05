@@ -3,6 +3,7 @@ const { code } = require("./elements/code");
 const { heading } = require("./elements/headings");
 const { horizontalRule } = require("./elements/HorizontalRule");
 const { bold } = require("./elements/inline/bold");
+const { italic } = require("./elements/inline/Italic");
 const { inlineElementTypes } = require("./elements/inline/types");
 const { list } = require("./elements/list");
 const { paragraph } = require("./elements/paragraph");
@@ -156,6 +157,16 @@ function inlineLexer(input) {
       tokens.push({
         ...x,
         type: inlineElementTypes.bold,
+      });
+    });
+  }
+
+  let italicResult = italic.extractItalic(input);
+  if (italicResult.success) {
+    italicResult.matches.forEach((x) => {
+      tokens.push({
+        ...x,
+        type: inlineElementTypes.italic,
       });
     });
   }
