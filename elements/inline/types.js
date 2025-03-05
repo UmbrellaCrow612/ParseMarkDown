@@ -9,7 +9,9 @@ const inlineElementTypes = {
 
   bold: "bold",
 
-  italic: "italic"
+  italic: "italic",
+
+  boldAndItalic: "bold-and-italic"
 };
 
 module.exports = {

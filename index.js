@@ -2,7 +2,7 @@ const { bold } = require("./elements/inline/bold");
 const { lexer } = require("./lexer");
 
 function main() {
-  let markdown = `*it* _it_ *it2 words* **bold** * _it_ __bold__`;
+  let markdown = `content ***bold and italic*** __bold with underscores__ ***bold and italic 2***`;
   lexer(markdown);
 }
 
