@@ -1,9 +1,10 @@
 const { blockQuote } = require("./elements/blockquote");
 const { code } = require("./elements/code");
 const { heading } = require("./elements/headings");
-const { horizontalRule } = require("./elements/HorizontalRule");
+const { horizontalRule } = require("./elements/horizontalRule");
 const { bold } = require("./elements/inline/bold");
 const { boldAndItalic } = require("./elements/inline/boldAndItalic");
+const { codeText } = require("./elements/inline/codeText");
 const { italic } = require("./elements/inline/Italic");
 const { inlineElementTypes } = require("./elements/inline/types");
 const { list } = require("./elements/list");
@@ -178,6 +179,16 @@ function inlineLexer(input) {
       tokens.push({
         ...x,
         type: inlineElementTypes.boldAndItalic,
+      });
+    });
+  }
+
+  let codeTextResult = codeText.extractCodeText(input);
+  if (codeTextResult.success) {
+    codeTextResult.matches.forEach((x) => {
+      tokens.push({
+        ...x,
+        type: inlineElementTypes.inlineCode,
       });
     });
   }

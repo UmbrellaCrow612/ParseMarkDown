@@ -11,7 +11,9 @@ const inlineElementTypes = {
 
   italic: "italic",
 
-  boldAndItalic: "bold-and-italic"
+  boldAndItalic: "bold-and-italic",
+
+  inlineCode: "inline-code"
 };
 
 module.exports = {
