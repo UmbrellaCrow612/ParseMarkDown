@@ -11,6 +11,8 @@ const inlineElementTypes = {
   inlineCode: "inline-code",
 
   strikeThrough: "strike-through",
+
+  link: "link"
 };
 
 module.exports = {
