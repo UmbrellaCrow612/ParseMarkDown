@@ -6,6 +6,7 @@ const { bold } = require("./elements/inline/bold");
 const { boldAndItalic } = require("./elements/inline/boldAndItalic");
 const { codeText } = require("./elements/inline/codeText");
 const { italic } = require("./elements/inline/Italic");
+const { strikethrough } = require("./elements/inline/strikethrough");
 const { inlineElementTypes } = require("./elements/inline/types");
 const { list } = require("./elements/list");
 const { paragraph } = require("./elements/paragraph");
@@ -189,6 +190,16 @@ function inlineLexer(input) {
       tokens.push({
         ...x,
         type: inlineElementTypes.inlineCode,
+      });
+    });
+  }
+
+  let strikeThroughResult = strikethrough.extractStrikeThroughContent(input);
+  if (strikeThroughResult.success) {
+    strikeThroughResult.matches.forEach((x) => {
+      tokens.push({
+        ...x,
+        type: inlineElementTypes.strikeThrough,
       });
     });
   }
